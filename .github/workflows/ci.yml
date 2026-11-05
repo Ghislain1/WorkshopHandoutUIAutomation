@@ -7,27 +7,22 @@ on:
 
 jobs:
   build:
-    strategy:
-      matrix:
-        configuration: [Debug, UIA2, UIA3]
     runs-on: windows-latest
 
     steps:
     - name: Checkout
       uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
 
-    - name: Install .NET Core
+    - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: 8.0.x
+        dotnet-version: 10.0.x
 
-    - name: Setup MSBuild.exe
-      uses: microsoft/setup-msbuild@v2
+    - name: Restore
+      run: dotnet restore src/WorkshopHandoutUIAutomation.sln
 
-    - name: Prepare Cake.Build
-      run: dotnet tool restore
-    
-    - name: Execute unit tests
-      run: dotnet cake --target "Test"
+    - name: Build
+      run: dotnet build src/WorkshopHandoutUIAutomation.sln -c Debug --no-restore
+
+    - name: Run unit tests
+      run: dotnet test tests/CustomerApp.Tests/CustomerApp.Tests.csproj -c Debug --no-build

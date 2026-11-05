@@ -20,7 +20,7 @@ namespace CustomerApp.UiTests.PageObjects;
         .FindFirstDescendant(cf => cf.ByAutomationId("DeleteCustomerButton"))
         .AsButton();
 
-    private DataGrid CustomerGrid => _window
+    private Grid CustomerGrid => _window
         .FindFirstDescendant(cf => cf.ByAutomationId("CustomerDataGrid"))
         .AsGrid();
 

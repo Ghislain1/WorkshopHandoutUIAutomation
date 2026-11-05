@@ -2,9 +2,6 @@
 bin/
 obj/
 
-# Cake Build
-.chocoapikey
-
 # Visual Studio cache/options directory
 .vs/
 
