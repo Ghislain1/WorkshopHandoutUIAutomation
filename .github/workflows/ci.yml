@@ -26,3 +26,6 @@ jobs:
 
     - name: Run unit tests
       run: dotnet test tests/CustomerApp.Tests/CustomerApp.Tests.csproj -c Debug --no-build
+
+    - name: Run UI tests
+      run: dotnet test tests/CustomerApp.UiTests -c Debug --no-build
