@@ -12,6 +12,7 @@ namespace CustomerApp.ViewModels;
 
 public partial class MainViewModel : ObservableObject {
     private readonly ICustomerRepository _repository;
+    private readonly IDialogService _dialogService;
 
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(DeleteCustomerCommand))]
@@ -19,8 +20,9 @@ public partial class MainViewModel : ObservableObject {
 
     public ObservableCollection<Customer> Customers { get; }
 
-    public MainViewModel(ICustomerRepository repository) {
+    public MainViewModel(ICustomerRepository repository, IDialogService dialogService) {
         _repository = repository;
+        _dialogService = dialogService;
         Customers = new ObservableCollection<Customer>(repository.GetAll());
     }
 
@@ -35,7 +37,8 @@ public partial class MainViewModel : ObservableObject {
         var customer = new Customer {
             Id = nextId,
             Name = $"Neuer Kunde {nextId}",
-            Email = $"kunde{nextId}@example.com"
+            Email = $"kunde{nextId}@example.com",
+            Phone = $"0151{nextId:D7}"
         };
 
         Customers.Add(customer);
@@ -46,6 +49,12 @@ public partial class MainViewModel : ObservableObject {
     [RelayCommand(CanExecute = nameof(HasSelection))]
     private void DeleteCustomer() {
         if (SelectedCustomer is null) {
+            return;
+        }
+
+        if (!_dialogService.Confirm(
+                "Kunde löschen",
+                $"Soll '{SelectedCustomer.Name}' wirklich gelöscht werden?")) {
             return;
         }
 

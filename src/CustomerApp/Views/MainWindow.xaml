@@ -4,17 +4,11 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:CustomerApp"
-        xmlns:vm="clr-namespace:CustomerApp.ViewModels"
         mc:Ignorable="d"
         Title="Kundenverwaltung"
         Height="600"
         Width="900"
         AutomationProperties.AutomationId="MainWindow">
- 
-
-  <Window.DataContext>
-   <vm:MainViewModel />
-  </Window.DataContext>
 
   <DockPanel Margin="16">
 
@@ -60,6 +54,11 @@
 
      <DataGridTextColumn Header="E-Mail"
                                     Binding="{Binding Email,
+                                              UpdateSourceTrigger=PropertyChanged}"
+                                    Width="*" />
+
+     <DataGridTextColumn Header="Telefon"
+                                    Binding="{Binding Phone,
                                               UpdateSourceTrigger=PropertyChanged}"
                                     Width="*" />
     </DataGrid.Columns>
