@@ -54,6 +54,18 @@ public sealed class CustomerManagementE2eTests : WpfAppTestBase {
     }
 
     [TestMethod]
+    public void SearchCustomer_WithoutMatches_ShowsEmptyGrid() {
+        var page = CreatePage();
+        Assert.IsTrue(page.RowCount > 0);
+
+        page.SearchCustomer("kein-treffer-123456");
+
+        page.WaitUntilRowCountIs(0);
+
+        Assert.AreEqual(0, page.RowCount);
+    }
+
+    [TestMethod]
     public void FullWorkflow_AddEditAndDeleteCustomer() {
         var page = CreatePage();
         var initialCount = page.RowCount;
