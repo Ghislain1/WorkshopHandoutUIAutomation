@@ -97,9 +97,7 @@ internal class MainWindowPage {
         var row = CustomerGrid.GetRowByIndex(rowIndex)!;
         return row.Cells[GetColumnIndex(columnHeader)];
     }
-    public void WaitForConvience(int timeInSeconde=5) {
-        Thread.Sleep(timeInSeconde*1000);
-    }
+  
     private int GetColumnIndex(string columnHeader) {
         var columns = CustomerGrid.Header!.Columns;
 

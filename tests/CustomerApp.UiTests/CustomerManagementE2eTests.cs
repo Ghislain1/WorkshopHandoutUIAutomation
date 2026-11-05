@@ -88,29 +88,30 @@ public sealed class CustomerManagementE2eTests : WpfAppTestBase {
     [TestMethod]
     public void Ghis_SearchSelectCustomer_ChangeEmail_Save_RestartApp_CheckChanges() {
         var page = CreatePage();
-        page.WaitForConvience(2);
+        WaitForConvience(2);
         var initialCount = page.RowCount;
 
         // Suche → Kunde 
         page.SearchCustomer("Ghislain");
         page.WaitUntilRowCountIs(initialCount - 2);
-        page.WaitForConvience(2);
+        WaitForConvience(2);
 
         // Kunde auswählen 
         page.SelectRow(initialCount-3);
-        page.WaitForConvience(2);
+        WaitForConvience();
 
         // E-Mail ändern
         page.EditCell(initialCount-3, "E-Mail", "virginie@dotnet.com");
-        page.WaitForConvience();
+        WaitForConvience();
         
         // Speichern
         page.SaveChanges();
 
-        // TODO: Anwendung neu starten
-       
-
-
+        // Anwendung neu starten
+        RestartApplication();
+        page = CreatePage();
+        Assert.AreEqual(3, page.RowCount);
+        WaitForConvience();
 
 
     }

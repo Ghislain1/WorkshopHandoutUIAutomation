@@ -10,21 +10,15 @@ public abstract class WpfAppTestBase : IDisposable {
     protected Application App { get; private set; } = null!;
     protected UIA3Automation Automation { get; private set; } = null!;
 
+    private static string ExePath => Path.Combine(
+        AppContext.BaseDirectory,
+        "..", "..", "..", "..", "..",
+        "src", "CustomerApp", "bin", "Debug",
+        "net10.0-windows", "CustomerApp.exe");
+
     [TestInitialize]
     public void StartApplication() {
-        Automation = new UIA3Automation();
-
-        var exePath = Path.Combine(
-            AppContext.BaseDirectory,
-            "..", "..", "..", "..", "..",
-            "src", "CustomerApp", "bin", "Debug",
-            "net10.0-windows", "CustomerApp.exe");
-
-        App = Application.Launch(exePath);
-
-        Retry.WhileNull(
-            () => App.GetMainWindow(Automation),
-            timeout: TimeSpan.FromSeconds(10));
+        LaunchApplication();
     }
 
     [TestCleanup]
@@ -32,6 +26,24 @@ public abstract class WpfAppTestBase : IDisposable {
         App?.Close();
         App?.Dispose();
         Automation?.Dispose();
+    }
+
+    public void RestartApplication() {
+        StopApplication();
+        LaunchApplication();
+    }
+
+    public void WaitForConvience(int timeInSeconde = 5) {
+        Thread.Sleep(timeInSeconde*1000);
+    }
+
+    private void LaunchApplication() {
+        Automation = new UIA3Automation();
+        App = Application.Launch(ExePath);
+
+        Retry.WhileNull(
+            () => App.GetMainWindow(Automation),
+            timeout: TimeSpan.FromSeconds(10));
     }
 
     public void Dispose() {
