@@ -65,8 +65,11 @@ public sealed class CustomerDataGridColumnE2eTests : WpfAppTestBase {
         var page = CreateGridPage();
 
         page.OpenDetails(0);
-        WaitForConvience();
-        // Beispiel: Prüfen über ein sichtbares Status-/Info-Feld.
-        // Assert.AreEqual("Details: Anna Weber", mainWindowPage.LastAction);
+
+        Retry.WhileFalse(
+            () => page.GetStatusMessage().Contains("Anna Weber"),
+            timeout: TimeSpan.FromSeconds(5));
+
+        Assert.AreEqual("Details: Anna Weber", page.GetStatusMessage());
     }
 }

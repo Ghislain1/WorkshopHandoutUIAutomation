@@ -7,11 +7,13 @@ using FlaUI.Core.WindowsAPI;
 namespace CustomerApp.UiTests.PageObjects;
 
 public sealed class CustomerGridPage {
+    private readonly Window _window;
     private readonly Grid _grid;
 
     public CustomerGridPage(Window window) {
         ArgumentNullException.ThrowIfNull(window);
 
+        _window = window;
         _grid = window
             .FindFirstDescendant(cf => cf.ByAutomationId("CustomerDataGrid"))
             ?.AsGrid()
@@ -19,6 +21,11 @@ public sealed class CustomerGridPage {
     }
 
     public int RowCount => _grid.Rows.Length;
+
+    public string GetStatusMessage() => _window
+        .FindFirstDescendant(cf => cf.ByAutomationId("StatusMessage"))
+        ?.AsLabel()
+        .Text ?? string.Empty;
 
     public GridRow GetRow(int index) => _grid.Rows[index];
 

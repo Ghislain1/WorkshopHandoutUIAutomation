@@ -77,7 +77,7 @@ public partial class MainViewModel : ObservableObject {
  
     [RelayCommand]
     private void ShowDetails(Customer customer) {
-        LastAction = $"Details: {customer.Name}";
+        StatusMessage = $"Details: {customer.Name}";
     }
 
     [RelayCommand]
