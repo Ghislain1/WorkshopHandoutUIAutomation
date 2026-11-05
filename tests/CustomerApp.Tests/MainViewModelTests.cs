@@ -106,4 +106,37 @@ public sealed class MainViewModelTests {
         Assert.AreEqual("Name ist erforderlich.", customer["Name"]);
     }
 
+    [TestMethod]
+    public void SearchText_FiltersCustomersByName() {
+        var sut = CreateSut();
+
+        sut.SearchText = "Anna";
+
+        var visible = sut.FilteredCustomers.Cast<Customer>().ToList();
+        Assert.HasCount(1, visible);
+        Assert.AreEqual("Anna Weber", visible[0].Name);
+    }
+
+    [TestMethod]
+    public void SearchText_FiltersCustomersByEmailAndPhone() {
+        var sut = CreateSut();
+
+        sut.SearchText = "ben@example.com";
+        Assert.HasCount(1, sut.FilteredCustomers.Cast<Customer>().ToList());
+
+        sut.SearchText = "040654321";
+        var visible = sut.FilteredCustomers.Cast<Customer>().ToList();
+        Assert.HasCount(1, visible);
+        Assert.AreEqual("Ben Schmidt", visible[0].Name);
+    }
+
+    [TestMethod]
+    public void SearchText_Empty_ShowsAllCustomers() {
+        var sut = CreateSut();
+        sut.SearchText = "Anna";
+
+        sut.SearchText = string.Empty;
+
+        Assert.HasCount(2, sut.FilteredCustomers.Cast<Customer>().ToList());
+    }
 }

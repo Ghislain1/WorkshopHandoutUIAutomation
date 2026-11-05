@@ -29,10 +29,20 @@
     <Button Content="Speichern"
                     AutomationProperties.AutomationId="SaveCustomersButton"
                     Command="{Binding SaveCustomersCommand}" />
+
+    <TextBlock Text="Suche:"
+                    VerticalAlignment="Center"
+                    Margin="16,0,4,0" />
+
+    <TextBox Width="220"
+                    VerticalContentAlignment="Center"
+                    AutomationProperties.AutomationId="SearchBox"
+                    AutomationProperties.Name="Suche"
+                    Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" />
    </StackPanel>
 
    <DataGrid AutomationProperties.AutomationId="CustomerDataGrid"
-                  ItemsSource="{Binding Customers}"
+                  ItemsSource="{Binding FilteredCustomers}"
                   SelectedItem="{Binding SelectedCustomer,
                                  Mode=TwoWay,
                                  UpdateSourceTrigger=PropertyChanged}"

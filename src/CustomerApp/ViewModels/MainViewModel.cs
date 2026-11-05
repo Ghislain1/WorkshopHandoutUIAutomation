@@ -3,6 +3,8 @@
 // // Copyright © 2025 - 2025, Alcon.All rights reserved.
 
 using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Windows.Data;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CustomerApp.Models;
@@ -18,12 +20,19 @@ public partial class MainViewModel : ObservableObject {
     [NotifyCanExecuteChangedFor(nameof(DeleteCustomerCommand))]
     private Customer? _selectedCustomer;
 
+    [ObservableProperty]
+    private string _searchText = string.Empty;
+
     public ObservableCollection<Customer> Customers { get; }
+
+    public ICollectionView FilteredCustomers { get; }
 
     public MainViewModel(ICustomerRepository repository, IDialogService dialogService) {
         _repository = repository;
         _dialogService = dialogService;
         Customers = new ObservableCollection<Customer>(repository.GetAll());
+        FilteredCustomers = CollectionViewSource.GetDefaultView(Customers);
+        FilteredCustomers.Filter = MatchesSearch;
     }
 
     public bool HasSelection => SelectedCustomer is not null;
@@ -66,5 +75,24 @@ public partial class MainViewModel : ObservableObject {
     [RelayCommand]
     private void SaveCustomers() {
         _repository.Save();
+    }
+
+    partial void OnSearchTextChanged(string value) {
+        FilteredCustomers.Refresh();
+    }
+
+    private bool MatchesSearch(object item) {
+        if (item is not Customer customer) {
+            return false;
+        }
+
+        var search = SearchText.Trim();
+        if (search.Length == 0) {
+            return true;
+        }
+
+        return customer.Name.Contains(search, StringComparison.OrdinalIgnoreCase)
+            || customer.Email.Contains(search, StringComparison.OrdinalIgnoreCase)
+            || customer.Phone.Contains(search, StringComparison.OrdinalIgnoreCase);
     }
 }
