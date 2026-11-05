@@ -23,6 +23,9 @@ public partial class MainViewModel : ObservableObject {
     [ObservableProperty]
     private string _searchText = string.Empty;
 
+    [ObservableProperty]
+    private string _statusMessage = string.Empty;
+
     public ObservableCollection<Customer> Customers { get; }
 
     public ICollectionView FilteredCustomers { get; }
@@ -74,8 +77,23 @@ public partial class MainViewModel : ObservableObject {
 
     [RelayCommand]
     private void SaveCustomers() {
+        var invalidCustomers = Customers.Count(HasValidationError);
+
+        if (invalidCustomers > 0) {
+            StatusMessage = invalidCustomers == 1
+                ? "Speichern nicht möglich: 1 Kunde enthält ungültige Daten."
+                : $"Speichern nicht möglich: {invalidCustomers} Kunden enthalten ungültige Daten.";
+            return;
+        }
+
         _repository.Save();
+        StatusMessage = "Gespeichert.";
     }
+
+    private static bool HasValidationError(Customer customer) =>
+        !string.IsNullOrEmpty(customer[nameof(Customer.Name)])
+        || !string.IsNullOrEmpty(customer[nameof(Customer.Email)])
+        || !string.IsNullOrEmpty(customer[nameof(Customer.Phone)]);
 
     partial void OnSearchTextChanged(string value) {
         FilteredCustomers.Refresh();

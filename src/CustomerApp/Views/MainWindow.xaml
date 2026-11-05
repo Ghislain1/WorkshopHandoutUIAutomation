@@ -41,6 +41,11 @@
                     Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" />
    </StackPanel>
 
+   <TextBlock DockPanel.Dock="Bottom"
+                  Margin="0,12,0,0"
+                  AutomationProperties.AutomationId="StatusMessage"
+                  Text="{Binding StatusMessage}" />
+
    <DataGrid AutomationProperties.AutomationId="CustomerDataGrid"
                   ItemsSource="{Binding FilteredCustomers}"
                   SelectedItem="{Binding SelectedCustomer,

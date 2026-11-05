@@ -13,11 +13,29 @@ public sealed class MainViewModelTests {
     private sealed class FakeDialogService : IDialogService {
         public bool Result { get; set; }
         public bool WasCalled { get; private set; }
+        public string LastTitle { get; private set; } = string.Empty;
+        public string LastMessage { get; private set; } = string.Empty;
 
         public bool Confirm(string title, string message) {
             WasCalled = true;
+            LastTitle = title;
+            LastMessage = message;
             return Result;
         }
+    }
+
+    private sealed class FakeCustomerRepository : ICustomerRepository {
+        private readonly List<Customer> _customers = [];
+
+        public bool SaveCalled { get; private set; }
+
+        public IReadOnlyList<Customer> GetAll() => _customers;
+
+        public void Add(Customer customer) => _customers.Add(customer);
+
+        public void Remove(int id) => _customers.RemoveAll(c => c.Id == id);
+
+        public void Save() => SaveCalled = true;
     }
 
     [TestMethod]
@@ -33,6 +51,8 @@ public sealed class MainViewModelTests {
         Assert.HasCount(1, repository.GetAll());
         Assert.IsNull(sut.SelectedCustomer);
         Assert.IsTrue(dialog.WasCalled);
+        Assert.AreEqual("Kunde löschen", dialog.LastTitle);
+        StringAssert.Contains(dialog.LastMessage, "Anna Weber");
     }
 
     [TestMethod]
@@ -104,6 +124,42 @@ public sealed class MainViewModelTests {
         var customer = new Customer { Name = "", Email = "test@example.com" };
 
         Assert.AreEqual("Name ist erforderlich.", customer["Name"]);
+    }
+
+    [TestMethod]
+    public void SaveCustomers_WithInvalidCustomer_DoesNotSave() {
+        var repository = new FakeCustomerRepository();
+        repository.Add(new Customer {
+            Id = 1,
+            Name = string.Empty,
+            Email = "invalid",
+            Phone = "123"
+        });
+        var sut = new MainViewModel(repository, new FakeDialogService());
+
+        sut.SaveCustomersCommand.Execute(null);
+
+        Assert.IsFalse(repository.SaveCalled);
+        Assert.AreEqual(
+            "Speichern nicht möglich: 1 Kunde enthält ungültige Daten.",
+            sut.StatusMessage);
+    }
+
+    [TestMethod]
+    public void SaveCustomers_WithValidCustomers_Saves() {
+        var repository = new FakeCustomerRepository();
+        repository.Add(new Customer {
+            Id = 1,
+            Name = "Anna Weber",
+            Email = "anna@example.com",
+            Phone = "030123456"
+        });
+        var sut = new MainViewModel(repository, new FakeDialogService());
+
+        sut.SaveCustomersCommand.Execute(null);
+
+        Assert.IsTrue(repository.SaveCalled);
+        Assert.AreEqual("Gespeichert.", sut.StatusMessage);
     }
 
     [TestMethod]
