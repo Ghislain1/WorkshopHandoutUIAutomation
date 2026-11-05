@@ -20,6 +20,12 @@
     <x:Type TypeName="models:CustomerStatus" />
    </ObjectDataProvider.MethodParameters>
   </ObjectDataProvider>
+
+  <Style x:Key="NameCellStyle" TargetType="DataGridCell">
+   <Setter Property="AutomationProperties.AutomationId"
+            Value="NameCell" />
+  </Style>
+  
  </Window.Resources>
 
  <DockPanel Margin="16">
@@ -73,6 +79,7 @@
     <!-- Text -->
     <DataGridTextColumn Header="Name"
                             AutomationProperties.AutomationId="NameColumn"
+                        CellStyle="{StaticResource NameCellStyle}"
                             Binding="{Binding Name,
                                       UpdateSourceTrigger=PropertyChanged}"
                             Width="150" />

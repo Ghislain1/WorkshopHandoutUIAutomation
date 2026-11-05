@@ -69,18 +69,21 @@ public sealed class CustomerManagementE2eTests : WpfAppTestBase {
     public void FullWorkflow_AddEditAndDeleteCustomer() {
         var page = CreatePage();
         var initialCount = page.RowCount;
+        WaitForConvience();
 
         page.AddCustomer();
         page.WaitUntilRowCountIs(initialCount + 1);
+        WaitForConvience();
 
         page.SelectRow(initialCount);
         page.EditCell(initialCount, "Name", "E2E Kunde");
-
+        WaitForConvience();
         Assert.AreEqual(
             "E2E Kunde",
             page.GetCellValue(initialCount, "Name"));
 
         page.DeleteSelectedCustomer();
+        WaitForConvience();
         page.WaitUntilRowCountIs(initialCount);
     }
 
