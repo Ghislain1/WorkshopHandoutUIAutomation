@@ -9,7 +9,8 @@ public sealed class CustomerManagementE2eTests : WpfAppTestBase {
     private MainWindowPage CreatePage() {
         var mainWindow = Retry.WhileNull(
             () => App.GetMainWindow(Automation),
-            timeout: TimeSpan.FromSeconds(10)).Result;
+            timeout: TimeSpan.FromSeconds(10)).Result
+            ?? throw new InvalidOperationException("Hauptfenster nicht gefunden.");
 
         return new MainWindowPage(mainWindow);
     }

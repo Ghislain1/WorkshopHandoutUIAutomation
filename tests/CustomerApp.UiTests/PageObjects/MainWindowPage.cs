@@ -13,15 +13,15 @@ namespace CustomerApp.UiTests.PageObjects;
     }
 
     private Button AddButton => _window
-        .FindFirstDescendant(cf => cf.ByAutomationId("AddCustomerButton"))
+        .FindFirstDescendant(cf => cf.ByAutomationId("AddCustomerButton"))!
         .AsButton();
 
     private Button DeleteButton => _window
-        .FindFirstDescendant(cf => cf.ByAutomationId("DeleteCustomerButton"))
+        .FindFirstDescendant(cf => cf.ByAutomationId("DeleteCustomerButton"))!
         .AsButton();
 
     private Grid CustomerGrid => _window
-        .FindFirstDescendant(cf => cf.ByAutomationId("CustomerDataGrid"))
+        .FindFirstDescendant(cf => cf.ByAutomationId("CustomerDataGrid"))!
         .AsGrid();
 
     public int RowCount => CustomerGrid.Rows.Length;
@@ -44,7 +44,7 @@ namespace CustomerApp.UiTests.PageObjects;
         var cell = Retry.WhileNull(
             () => row.FindFirstDescendant(
                 cf => cf.ByName(columnHeader)),
-            timeout: TimeSpan.FromSeconds(2)).Result;
+            timeout: TimeSpan.FromSeconds(2)).Result!;
 
         return cell.AsTextBox().Text;
     }
@@ -53,7 +53,7 @@ namespace CustomerApp.UiTests.PageObjects;
         var row = CustomerGrid.Rows[rowIndex];
 
         var cell = row.FindFirstDescendant(
-            cf => cf.ByName(columnHeader));
+            cf => cf.ByName(columnHeader))!;
 
         var textBox = cell.AsTextBox();
         textBox.Text = newValue;
