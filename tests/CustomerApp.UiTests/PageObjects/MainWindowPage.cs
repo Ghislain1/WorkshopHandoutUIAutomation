@@ -1,11 +1,13 @@
 ﻿using FlaUI.Core.AutomationElements;
+using FlaUI.Core.Definitions;
+using FlaUI.Core.Input;
 using FlaUI.Core.Tools;
+using FlaUI.Core.WindowsAPI;
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace CustomerApp.UiTests.PageObjects;
-    internal class MainWindowPage {
+
+internal class MainWindowPage {
     private readonly Window _window;
 
     public MainWindowPage(Window window) {
@@ -35,28 +37,30 @@ namespace CustomerApp.UiTests.PageObjects;
     }
 
     public void SelectRow(int rowIndex) {
-        var row = CustomerGrid.Rows[rowIndex];
-        row.Select();
+        CustomerGrid.GetRowByIndex(rowIndex)!.Select();
     }
-    public string GetCellValue(int rowIndex, string columnHeader) {
-        var row = CustomerGrid.Rows[rowIndex];
 
-        var cell = Retry.WhileNull(
-            () => row.FindFirstDescendant(
-                cf => cf.ByName(columnHeader)),
-            timeout: TimeSpan.FromSeconds(2)).Result!;
-
-        return cell.AsTextBox().Text;
-    }
+    public string GetCellValue(int rowIndex, string columnHeader) =>
+        GetCell(rowIndex, columnHeader).Value ?? string.Empty;
 
     public void EditCell(int rowIndex, string columnHeader, string newValue) {
-        var row = CustomerGrid.Rows[rowIndex];
+        var cell = GetCell(rowIndex, columnHeader);
+        cell.DoubleClick();
 
-        var cell = row.FindFirstDescendant(
-            cf => cf.ByName(columnHeader))!;
+        var edit = Retry.WhileNull(
+            () => cell.FindFirstDescendant(cf => cf.ByControlType(ControlType.Edit)),
+            timeout: TimeSpan.FromSeconds(2)).Result
+            ?? throw new InvalidOperationException(
+                $"Edit-Control für Spalte '{columnHeader}' nicht gefunden.");
 
-        var textBox = cell.AsTextBox();
+        var textBox = edit.AsTextBox();
         textBox.Text = newValue;
+        textBox.Focus();
+        Keyboard.Press(VirtualKeyShort.ENTER);
+
+        Retry.WhileFalse(
+            () => GetCellValue(rowIndex, columnHeader) == newValue,
+            timeout: TimeSpan.FromSeconds(2));
     }
 
     public void WaitUntilRowCountIs(int expectedCount) {
@@ -65,4 +69,22 @@ namespace CustomerApp.UiTests.PageObjects;
             timeout: TimeSpan.FromSeconds(5));
     }
 
+    private GridCell GetCell(int rowIndex, string columnHeader) {
+        var row = CustomerGrid.GetRowByIndex(rowIndex)!;
+        return row.Cells[GetColumnIndex(columnHeader)];
+    }
+
+    private int GetColumnIndex(string columnHeader) {
+        var columns = CustomerGrid.Header!.Columns;
+
+        for (var i = 0; i < columns.Length; i++) {
+            if (string.Equals(columns[i].Text, columnHeader, StringComparison.Ordinal)) {
+                return i;
+            }
+        }
+
+        throw new ArgumentException(
+            $"Spalte '{columnHeader}' nicht gefunden.",
+            nameof(columnHeader));
+    }
 }
