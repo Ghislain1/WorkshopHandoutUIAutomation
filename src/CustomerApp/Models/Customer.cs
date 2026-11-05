@@ -14,7 +14,7 @@ public class Customer : INotifyPropertyChanged, IDataErrorInfo {
 
 
     private string _name = string.Empty;
-    private int _phone = 1;
+    private string _phone = string.Empty;
     private string _email = string.Empty;
     public int Id { get; init; }
 
@@ -27,7 +27,7 @@ public class Customer : INotifyPropertyChanged, IDataErrorInfo {
         get => _email;
         set => Set(ref _email, value);
     }
-    public int Phone {
+    public string Phone {
         get => _phone;
         set => Set(ref _phone, value);
     }
@@ -39,6 +39,8 @@ public class Customer : INotifyPropertyChanged, IDataErrorInfo {
             => "Name ist erforderlich.",
         nameof(Email) when !Email.Contains('@')
             => "Ungültige E-Mail-Adresse.",
+        nameof(Phone) when Phone.Length < 6
+            => "Telefonnummer muss mindestens 6 Zeichen enthalten.",
         _ => string.Empty
     };
 
