@@ -2,6 +2,7 @@
 using FlaUI.Core.Definitions;
 using FlaUI.Core.Input;
 using FlaUI.Core.Tools;
+using FlaUI.Core.WindowsAPI;
 
 namespace CustomerApp.UiTests.PageObjects;
 
@@ -9,9 +10,12 @@ public sealed class CustomerGridPage {
     private readonly Grid _grid;
 
     public CustomerGridPage(Window window) {
+        ArgumentNullException.ThrowIfNull(window);
+
         _grid = window
             .FindFirstDescendant(cf => cf.ByAutomationId("CustomerDataGrid"))
-            .AsGrid();
+            ?.AsGrid()
+            ?? throw new InvalidOperationException("CustomerDataGrid nicht gefunden.");
     }
 
     public int RowCount => _grid.Rows.Length;
@@ -24,7 +28,9 @@ public sealed class CustomerGridPage {
         return Retry.WhileNull(
             () => row.FindFirstDescendant(
                 cf => cf.ByAutomationId(columnAutomationId)),
-            timeout: TimeSpan.FromSeconds(3)).Result;
+            timeout: TimeSpan.FromSeconds(3)).Result
+            ?? throw new InvalidOperationException(
+                $"Zelle '{columnAutomationId}' nicht gefunden.");
     }
 
     // DataGridTextColumn
@@ -36,15 +42,16 @@ public sealed class CustomerGridPage {
         cell.DoubleClick();
         var textBox = Retry.WhileNull(
             () => cell.FindFirstDescendant(cf => cf.ByControlType(ControlType.Edit)),
-            timeout: TimeSpan.FromSeconds(2)).Result.AsTextBox();
+            timeout: TimeSpan.FromSeconds(2)).Result?.AsTextBox()
+            ?? throw new InvalidOperationException("Edit-Control nicht gefunden.");
 
         textBox.Text = value;
-        Keyboard.PressVirtualKeyCode(FlaUI.Core.Input.VirtualKeyShort.ENTER);
+        Keyboard.Press(VirtualKeyShort.ENTER);
     }
 
     // DataGridCheckBoxColumn
     public bool GetIsActive(int rowIndex) =>
-        GetCell(rowIndex, "IsActiveCell").AsCheckBox().IsToggled;
+        GetCell(rowIndex, "IsActiveCell").AsCheckBox().IsToggled ?? false;
 
     public void ToggleIsActive(int rowIndex) {
         GetCell(rowIndex, "IsActiveCell").AsCheckBox().Toggle();
@@ -71,16 +78,18 @@ public sealed class CustomerGridPage {
         var datePicker = Retry.WhileNull(
             () => cell.FindFirstDescendant(
                 cf => cf.ByAutomationId("BirthDatePicker")),
-            timeout: TimeSpan.FromSeconds(2)).Result;
+            timeout: TimeSpan.FromSeconds(2)).Result
+            ?? throw new InvalidOperationException("BirthDatePicker nicht gefunden.");
 
         datePicker.Patterns.Value.Pattern.SetValue(date.ToString("d"));
     }
 
     // DataGridTemplateColumn: Button
     public void OpenDetails(int rowIndex) {
-        GetCell(rowIndex, "ActionsCell")
-            .FindFirstDescendant(cf => cf.ByAutomationId("CustomerDetailsButton"))
-            .AsButton()
-            .Invoke();
+        var detailsButton = GetCell(rowIndex, "ActionsCell")
+            .FindFirstDescendant(cf => cf.ByAutomationId("CustomerDetailsButton"))?.AsButton()
+            ?? throw new InvalidOperationException("CustomerDetailsButton nicht gefunden.");
+
+        detailsButton.Invoke();
     }
 }

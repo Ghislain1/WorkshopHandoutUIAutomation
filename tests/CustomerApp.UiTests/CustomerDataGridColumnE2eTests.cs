@@ -9,7 +9,8 @@ public sealed class CustomerDataGridColumnE2eTests : WpfAppTestBase {
     private CustomerGridPage CreateGridPage() {
         var window = Retry.WhileNull(
             () => App.GetMainWindow(Automation),
-            timeout: TimeSpan.FromSeconds(10)).Result;
+            timeout: TimeSpan.FromSeconds(10)).Result
+            ?? throw new InvalidOperationException("Hauptfenster nicht gefunden.");
 
         return new CustomerGridPage(window);
     }
