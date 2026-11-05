@@ -22,9 +22,17 @@ internal class MainWindowPage {
         .FindFirstDescendant(cf => cf.ByAutomationId("DeleteCustomerButton"))!
         .AsButton();
 
+    private Button SaveButton => _window
+      .FindFirstDescendant(cf => cf.ByAutomationId("SaveCustomersButton"))!
+      .AsButton();
+
     private Grid CustomerGrid => _window
         .FindFirstDescendant(cf => cf.ByAutomationId("CustomerDataGrid"))!
         .AsGrid();
+
+    private TextBox SearchTextBox => _window
+     .FindFirstDescendant(cf => cf.ByAutomationId("SearchBox"))!
+     .AsTextBox();
 
     public int RowCount => CustomerGrid.Rows.Length;
 
@@ -32,8 +40,24 @@ internal class MainWindowPage {
         AddButton.Invoke();
     }
 
+    public void SearchCustomer(string pattern) {
+        SearchTextBox.Text = pattern;
+    }
+
+    public void SaveChanges() {
+        SaveButton.Invoke();
+    }
+
     public void DeleteSelectedCustomer() {
-        DeleteButton.Invoke();
+        var invokeTask = Task.Run(() => DeleteButton.Invoke());
+
+        var yesButton = Retry.WhileNull(
+            () => _window.FindFirstDescendant(cf => cf.ByAutomationId("6")),
+            timeout: TimeSpan.FromSeconds(5)).Result
+            ?? throw new InvalidOperationException("Bestätigungsdialog nicht gefunden.");
+
+        yesButton.AsButton().Invoke();
+        invokeTask.GetAwaiter().GetResult();
     }
 
     public void SelectRow(int rowIndex) {
@@ -73,7 +97,9 @@ internal class MainWindowPage {
         var row = CustomerGrid.GetRowByIndex(rowIndex)!;
         return row.Cells[GetColumnIndex(columnHeader)];
     }
-
+    public void WaitForConvience(int timeInSeconde=5) {
+        Thread.Sleep(timeInSeconde*1000);
+    }
     private int GetColumnIndex(string columnHeader) {
         var columns = CustomerGrid.Header!.Columns;
 

@@ -5,6 +5,7 @@ using FlaUI.Core.Tools;
 namespace CustomerApp.UiTests;
 
 [TestClass]
+[DoNotParallelize]
 public sealed class CustomerManagementE2eTests : WpfAppTestBase {
     private MainWindowPage CreatePage() {
         var mainWindow = Retry.WhileNull(
@@ -69,5 +70,36 @@ public sealed class CustomerManagementE2eTests : WpfAppTestBase {
 
         page.DeleteSelectedCustomer();
         page.WaitUntilRowCountIs(initialCount);
+    }
+
+
+    [TestMethod]
+    public void Ghis_SearchSelectCustomer_ChangeEmail_Save_RestartApp_CheckChanges() {
+        var page = CreatePage();
+        page.WaitForConvience(2);
+        var initialCount = page.RowCount;
+
+        // Suche → Kunde 
+        page.SearchCustomer("Ghislain");
+        page.WaitUntilRowCountIs(initialCount - 2);
+        page.WaitForConvience(2);
+
+        // Kunde auswählen 
+        page.SelectRow(initialCount-3);
+        page.WaitForConvience(2);
+
+        // E-Mail ändern
+        page.EditCell(initialCount-3, "E-Mail", "virginie@dotnet.com");
+        page.WaitForConvience();
+        
+        // Speichern
+        page.SaveChanges();
+
+        // TODO: Anwendung neu starten
+       
+
+
+
+
     }
 }
