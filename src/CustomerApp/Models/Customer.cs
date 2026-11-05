@@ -16,6 +16,11 @@ public class Customer : INotifyPropertyChanged, IDataErrorInfo {
     private string _name = string.Empty;
     private string _phone = string.Empty;
     private string _email = string.Empty;
+    private Uri? _website;
+
+    private CustomerStatus _status = CustomerStatus.Active;
+    private DateTime _birthDate = DateTime.Today;
+    private bool _isActive  ;
     public int Id { get; init; }
 
     public string Name {
@@ -32,6 +37,15 @@ public class Customer : INotifyPropertyChanged, IDataErrorInfo {
         set => Set(ref _phone, value);
     }
 
+    public DateTime BirthDate {
+        get => _birthDate;
+        set => Set(ref _birthDate, value);
+    }
+
+    public Uri? Website {
+        get => _website;
+        set => Set(ref _website, value);
+    }
     public string Error => string.Empty;
 
     public string this[string columnName] => columnName switch {
@@ -41,9 +55,14 @@ public class Customer : INotifyPropertyChanged, IDataErrorInfo {
             => "Ungültige E-Mail-Adresse.",
         nameof(Phone) when Phone.Length < 6
             => "Telefonnummer muss mindestens 6 Zeichen enthalten.",
+        nameof(BirthDate) when BirthDate > DateTime.Today
+           => "Geburtsdatum darf nicht in der Zukunft liegen.",
         _ => string.Empty
     };
-
+    public bool IsActive {
+        get => _isActive;
+        set => Set(ref _isActive, value);
+    }
     public event PropertyChangedEventHandler? PropertyChanged;
 
     private void Set<T>(ref T field, T value,

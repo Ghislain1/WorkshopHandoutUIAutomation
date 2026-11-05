@@ -4,13 +4,26 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:CustomerApp"
+        xmlns:sys="clr-namespace:System;assembly=mscorlib"
+        xmlns:models="clr-namespace:CustomerApp.Models"
+        xmlns:vm="clr-namespace:CustomerApp.ViewModels"           
         mc:Ignorable="d"
+        d:DataContext="{d:DesignInstance Type=vm:MainViewModel, IsDesignTimeCreatable=False}"
         Title="Kundenverwaltung"
         Height="600"
         Width="900"
         AutomationProperties.AutomationId="MainWindow">
+ <Window.Resources>
+  <ObjectDataProvider x:Key="CustomerStatuses"
+                        MethodName="GetValues"
+                        ObjectType="{x:Type sys:Enum}">
+   <ObjectDataProvider.MethodParameters>
+    <x:Type TypeName="models:CustomerStatus" />
+   </ObjectDataProvider.MethodParameters>
+  </ObjectDataProvider>
+ </Window.Resources>
 
-  <DockPanel Margin="16">
+ <DockPanel Margin="16">
 
    <StackPanel DockPanel.Dock="Top"
                     Orientation="Horizontal"
@@ -56,27 +69,79 @@
                   CanUserDeleteRows="False"
                   SelectionMode="Single">
 
-    <DataGrid.Columns>
-     <DataGridTextColumn Header="ID"
-                                    Binding="{Binding Id}"
-                                    IsReadOnly="True"
-                                    Width="60" />
+   <DataGrid.Columns>
 
-     <DataGridTextColumn Header="Name"
-                                    Binding="{Binding Name,
-                                              UpdateSourceTrigger=PropertyChanged}"
-                                    Width="*" />
+    <!-- Text -->
+    <DataGridTextColumn Header="Name"
+                            AutomationProperties.AutomationId="NameColumn"
+                            Binding="{Binding Name,
+                                      UpdateSourceTrigger=PropertyChanged}"
+                            Width="150" />
 
-     <DataGridTextColumn Header="E-Mail"
-                                    Binding="{Binding Email,
-                                              UpdateSourceTrigger=PropertyChanged}"
-                                    Width="*" />
+    <!-- Text / E-Mail -->
+    <DataGridTextColumn Header="E-Mail"
+                            AutomationProperties.AutomationId="EmailColumn"
+                            Binding="{Binding Email,
+                                      UpdateSourceTrigger=PropertyChanged}"
+                            Width="200" />
 
-     <DataGridTextColumn Header="Telefon"
-                                    Binding="{Binding Phone,
-                                              UpdateSourceTrigger=PropertyChanged}"
-                                    Width="*" />
-    </DataGrid.Columns>
-   </DataGrid>
+    <!-- Boolean -->
+    <DataGridCheckBoxColumn Header="Aktiv"
+                                AutomationProperties.AutomationId="IsActiveColumn"
+                                Binding="{Binding IsActive,
+                                          UpdateSourceTrigger=PropertyChanged}"
+                                IsThreeState="False" />
+
+    <!-- Enum -->
+    <DataGridComboBoxColumn Header="Status"
+                                AutomationProperties.AutomationId="StatusColumn"
+                                SelectedItemBinding="{Binding Status}"
+                                ItemsSource="{Binding Source={StaticResource CustomerStatuses}}" />
+
+    <!-- Uri -->
+    <DataGridHyperlinkColumn Header="Website"
+                                 AutomationProperties.AutomationId="WebsiteColumn"
+                                 Binding="{Binding Website}"
+                                 ContentBinding="{Binding Website}"
+                                 Width="200" />
+
+    <!-- Custom: DatePicker -->
+    <DataGridTemplateColumn Header="Geburtsdatum"
+                                AutomationProperties.AutomationId="BirthDateColumn">
+     <DataGridTemplateColumn.CellTemplate>
+      <DataTemplate>
+       <TextBlock Text="{Binding BirthDate,
+                                      StringFormat=d}"
+                               VerticalAlignment="Center"
+                               Margin="4,0" />
+      </DataTemplate>
+     </DataGridTemplateColumn.CellTemplate>
+
+     <DataGridTemplateColumn.CellEditingTemplate>
+      <DataTemplate>
+       <DatePicker AutomationProperties.AutomationId="BirthDatePicker"
+                                SelectedDate="{Binding BirthDate,
+                                               UpdateSourceTrigger=PropertyChanged}" />
+      </DataTemplate>
+     </DataGridTemplateColumn.CellEditingTemplate>
+    </DataGridTemplateColumn>
+
+    <!-- Custom: Aktion -->
+    <DataGridTemplateColumn Header="Aktion"
+                                AutomationProperties.AutomationId="ActionsColumn">
+     <DataGridTemplateColumn.CellTemplate>
+      <DataTemplate>
+       <Button Content="Details"
+                            AutomationProperties.AutomationId="CustomerDetailsButton"
+                            Command="{Binding DataContext.ShowDetailsCommand,
+                                      RelativeSource={RelativeSource
+                                          AncestorType=Window}}"
+                            CommandParameter="{Binding}" />
+      </DataTemplate>
+     </DataGridTemplateColumn.CellTemplate>
+    </DataGridTemplateColumn>
+
+   </DataGrid.Columns>
+  </DataGrid>
   </DockPanel>
 </Window>
