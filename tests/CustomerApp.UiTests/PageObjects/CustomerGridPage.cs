@@ -1,11 +1,12 @@
 ﻿using FlaUI.Core.AutomationElements;
 using FlaUI.Core.Definitions;
+using FlaUI.Core.Input;
 using FlaUI.Core.Tools;
 
 namespace CustomerApp.UiTests.PageObjects;
 
 public sealed class CustomerGridPage {
-    private readonly DataGrid _grid;
+    private readonly Grid _grid;
 
     public CustomerGridPage(Window window) {
         _grid = window
@@ -15,7 +16,7 @@ public sealed class CustomerGridPage {
 
     public int RowCount => _grid.Rows.Length;
 
-    public DataGridRow GetRow(int index) => _grid.Rows[index];
+    public GridRow GetRow(int index) => _grid.Rows[index];
 
     private AutomationElement GetCell(int rowIndex, string columnAutomationId) {
         var row = GetRow(rowIndex);
