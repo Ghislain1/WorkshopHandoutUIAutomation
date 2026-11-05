@@ -1,12 +1,68 @@
-﻿<Window x:Class="CustomerApp.MainWindow"
+<Window x:Class="CustomerApp.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:CustomerApp"
+        xmlns:vm="clr-namespace:CustomerApp.ViewModels"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
-    <Grid>
+        Title="Kundenverwaltung"
+        Height="600"
+        Width="900"
+        AutomationProperties.AutomationId="MainWindow">
+ 
 
-    </Grid>
+  <Window.DataContext>
+   <vm:MainViewModel />
+  </Window.DataContext>
+
+  <DockPanel Margin="16">
+
+   <StackPanel DockPanel.Dock="Top"
+                    Orientation="Horizontal"
+                    Margin="0,0,0,16">
+
+    <Button Content="Kunde hinzufügen"
+                    AutomationProperties.AutomationId="AddCustomerButton"
+                    Command="{Binding AddCustomerCommand}"
+                    Margin="0,0,8,0" />
+
+    <Button Content="Kunde löschen"
+                    AutomationProperties.AutomationId="DeleteCustomerButton"
+                    Command="{Binding DeleteCustomerCommand}"
+                    Margin="0,0,8,0" />
+
+    <Button Content="Speichern"
+                    AutomationProperties.AutomationId="SaveCustomersButton"
+                    Command="{Binding SaveCustomersCommand}" />
+   </StackPanel>
+
+   <DataGrid AutomationProperties.AutomationId="CustomerDataGrid"
+                  ItemsSource="{Binding Customers}"
+                  SelectedItem="{Binding SelectedCustomer,
+                                 Mode=TwoWay,
+                                 UpdateSourceTrigger=PropertyChanged}"
+                  AutoGenerateColumns="False"
+                  CanUserAddRows="False"
+                  CanUserDeleteRows="False"
+                  SelectionMode="Single">
+
+    <DataGrid.Columns>
+     <DataGridTextColumn Header="ID"
+                                    Binding="{Binding Id}"
+                                    IsReadOnly="True"
+                                    Width="60" />
+
+     <DataGridTextColumn Header="Name"
+                                    Binding="{Binding Name,
+                                              UpdateSourceTrigger=PropertyChanged}"
+                                    Width="*" />
+
+     <DataGridTextColumn Header="E-Mail"
+                                    Binding="{Binding Email,
+                                              UpdateSourceTrigger=PropertyChanged}"
+                                    Width="*" />
+    </DataGrid.Columns>
+   </DataGrid>
+  </DockPanel>
 </Window>
