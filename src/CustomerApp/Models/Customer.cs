@@ -41,7 +41,10 @@ public class Customer : INotifyPropertyChanged, IDataErrorInfo {
         get => _birthDate;
         set => Set(ref _birthDate, value);
     }
-
+    public CustomerStatus Status {
+        get => _status;
+        set => Set(ref _status, value);
+    }
     public Uri? Website {
         get => _website;
         set => Set(ref _website, value);

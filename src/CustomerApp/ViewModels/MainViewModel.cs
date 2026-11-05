@@ -74,20 +74,22 @@ public partial class MainViewModel : ObservableObject {
         Customers.Remove(SelectedCustomer);
         SelectedCustomer = null;
     }
+ 
+    [RelayCommand]
+    private void ShowDetails(Customer customer) {
+        LastAction = $"Details: {customer.Name}";
+    }
 
     [RelayCommand]
     private void SaveCustomers() {
-        var invalidCustomers = Customers.Count(HasValidationError);
+        var invalid = Customers
+            .Where(c => !string.IsNullOrEmpty(c["Name"]) ||
+                        !string.IsNullOrEmpty(c["Email"]))
+            .ToList();
 
-        if (invalidCustomers > 0) {
-            StatusMessage = invalidCustomers == 1
-                ? "Speichern nicht möglich: 1 Kunde enthält ungültige Daten."
-                : $"Speichern nicht möglich: {invalidCustomers} Kunden enthalten ungültige Daten.";
-            return;
-        }
-
-        _repository.Save();
-        StatusMessage = "Gespeichert.";
+        LastAction = invalid.Count == 0
+            ? "Gespeichert"
+            : $"{invalid.Count} ungültige Kunden";
     }
 
     private static bool HasValidationError(Customer customer) =>
@@ -98,6 +100,8 @@ public partial class MainViewModel : ObservableObject {
     partial void OnSearchTextChanged(string value) {
         FilteredCustomers.Refresh();
     }
+    [ObservableProperty]
+    private string? _lastAction;
 
     private bool MatchesSearch(object item) {
         if (item is not Customer customer) {
